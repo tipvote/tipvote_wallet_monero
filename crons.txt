@@ -1,0 +1,7 @@
+# wallet - xmr
+
+# */2 * * * * /home/droid/wallet_xmr/venv/bin/python3 /home/droid/wallet_xmr/monero_checkincomming.py
+# */5 * * * * /home/droid/wallet_xmr/venv/bin/python3 /home/droid/wallet_xmr/monero_sendcoin.py
+# */2 * * * * /home/droid/wallet_xmr/venv/bin/python3 /home/droid/wallet_xmr/monero_getblockcount.py
+# */2 * * * * /home/droid/wallet_xmr/venv/bin/python3 /home/droid/wallet_xmr/monero_createaccount.py
+# * */12 * * * /home/droid/wallet_xmr/venv/bin/python3 /home/droid/wallet_xmr/monero_deletewalletwork.py
