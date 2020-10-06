@@ -894,6 +894,7 @@ class MoneroTransactions(db.Model):
     txid = db.Column(db.TEXT)
     amount = db.Column(db.DECIMAL(20, 12))
     balance = db.Column(db.DECIMAL(20, 12))
+    note = db.Column(db.TEXT)
     block = db.Column(db.INTEGER)
     created = db.Column(db.TIMESTAMP(), default=datetime.utcnow())
     address = db.Column(db.TEXT)

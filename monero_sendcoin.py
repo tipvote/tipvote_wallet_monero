@@ -33,17 +33,12 @@ def getblockheight():
     return lastblockheight
 
 
-def give_money_back(userswallet, amount):
-    newbalance = userswallet.currentbalance + amount
-    db.session.add(newbalance)
-
-
 def add_error(f, response_json):
 
-    if "error" in response_json:
-        if "message" in response_json["error"]:
-            theerror = response_json["error"]['message']
-            if theerror == 'not enough unlocked money':
+    if response_json["result"]['error']:
+        if response_json["result"]['error']['message']:
+
+            if response_json["result"]['error']['message'] == 'not enough unlocked money':
                 f.type = 300
             else:
                 f.type = 304
@@ -53,7 +48,7 @@ def add_error(f, response_json):
         db.session.add(f)
 
 
-def sendcoin(sendto, amount, user_id):
+def sendcoin(sendto, amount):
     """
     This will send the coin.
     If it fails turn the work to 105 for error
@@ -82,7 +77,7 @@ def sendcoin(sendto, amount, user_id):
         "method": "transfer",
         "params": {"destinations": recipents,
                    "mixin": mixin,
-                   "account_index": user_id
+                   "account_index": 2
                    }
     }
 
@@ -106,35 +101,42 @@ def sendcoin(sendto, amount, user_id):
 def add_transaction(f, sendto, amount, user_id):
 
     userswallet = getwalletofperson(userid=user_id)
-    response_json = sendcoin(sendto=sendto,
-                             amount=amount,
-                             user_id=user_id
-                             )
+    response_json_send = sendcoin(sendto=sendto,
+                                  amount=amount,
+                                  )
     # see if successful
-    if "result" in response_json:
-        theblockheight = getblockheight()
+    amountsend = response_json_send["result"]['amount']
+    if amountsend:
+        if amountsend > 0:
+            theblockheight = getblockheight()
 
-        thetxid = response_json["result"]['tx_hash']
-        feefromtx = response_json["result"]['fee']
-        thefee = Decimal(get_money(str(feefromtx)))
+            thetxid = response_json_send["result"]['tx_hash']
+            feefromtx = response_json_send["result"]['fee']
+            thefee = Decimal(get_money(str(feefromtx)))
 
-        monero_addtransaction(category=2,
-                              amount=amount,
-                              user_id=f.user_id,
-                              txid=thetxid,
-                              block=theblockheight.blockheight,
-                              balance=userswallet.currentbalance,
-                              confirmed=1,
-                              fee=thefee,
-                              address=sendto
-                              )
+            monero_addtransaction(category=2,
+                                  amount=amount,
+                                  user_id=f.user_id,
+                                  txid=thetxid,
+                                  block=theblockheight.blockheight,
+                                  balance=userswallet.currentbalance,
+                                  confirmed=1,
+                                  fee=thefee,
+                                  address=sendto
+                                  )
 
-        f.type = 0
-        db.session.add(f)
+            f.type = 0
+            db.session.add(f)
+            print("sent coin work completed")
 
-    elif "error" in response_json:
-        add_error(f, response_json)
-        give_money_back(userswallet, amount)
+    elif response_json_send["result"]['error']:
+        print("error!")
+        print(response_json_send)
+        add_error(f, response_json_send)
+
+        newbalance = userswallet.currentbalance + amount
+        userswallet.currentbalance = newbalance
+        db.session.add(userswallet)
 
     else:
         pass
@@ -156,13 +158,14 @@ def main():
 
     if work:
         for f in work:
-            if f.type == 1:
-                add_transaction(f,
-                                sendto=f.sendto,
-                                amount=f.amount,
-                                user_id=f.user_id
-                                )
+            add_transaction(f,
+                            sendto=f.sendto,
+                            amount=f.amount,
+                            user_id=f.user_id
+                            )
         db.session.commit()
+    else:
+        print("No outgoing transactions")
 
 
 if __name__ == '__main__':

@@ -7,6 +7,10 @@ from app import db
 from app.models import MoneroBlockHeight
 
 
+###
+# This script updates blocks so you know what to define confirmations as
+##
+
 def getblockheight():
 
     # standard json header
@@ -34,7 +38,7 @@ def getblockheight():
 def updateblockheight():
     response_json = getblockheight()
 
-    if "result" in response_json:
+    if response_json["result"]['height'] > 1:
 
         lastheight = response_json["result"]['height']
 
