@@ -23,7 +23,7 @@ headers = {'content-type': 'application/json'}
 
 
 def update_block_height(newheight):
-    current_blockheight = MoneroBlockHeight.query.get(1)
+    current_blockheight = db.session.query(MoneroBlockHeight).get(1)
     current_blockheight.blockheight = newheight
     db.session.add(current_blockheight)
 
@@ -34,7 +34,7 @@ def get_unconfirmed_db(user_id):
     :param user_id:
     :return:
     """
-    unconfirmedtable = MoneroUnconfirmed.query\
+    unconfirmedtable = db.session.query(MoneroUnconfirmed)\
         .filter_by(user_id=user_id)\
         .first()
     return unconfirmedtable
@@ -143,8 +143,8 @@ def getbalanceunconfirmed(user_id):
 
     total = a + b + c + d + e
 
-    get_user_wallet = MoneroWallet.query.\
-        filter_by(user_id=user_id).first()
+    get_user_wallet = db.session.query(MoneroWallet)\
+        .filter_by(user_id=user_id).first()
     totalchopped = floating_decimals(total, 12)
     get_user_wallet.unconfirmed = totalchopped
 
@@ -159,8 +159,8 @@ def createorphan(hashid, amount):
     :param amount:
     :return:
     """
-    checkorphan = MoneroUnconfirmed.query.\
-        filter_by(txid1=hashid).first()
+    checkorphan = db.session.query(MoneroUnconfirmed)\
+        .filter_by(txid1=hashid).first()
     if checkorphan is None:
         # orphan transaction..put in background.
         trans = MoneroTransOrphan(
@@ -188,12 +188,13 @@ def addtransaction(user_id,
 
     # check to see how many confirmations
 
-    current_blockheight = MoneroBlockHeight.query.get(1)
+    current_blockheight = db.session.query(MoneroBlockHeight).get(1)
     current_block = current_blockheight.blockheight
 
-    getuserswallet = MoneroWallet.query\
+    getuserswallet = db.session.query(MoneroWallet)\
         .filter(MoneroWallet.user_id == user_id)\
         .first()
+
     if gettransaction.confirmed == 0:
         print("transaction exists:", str(hashid))
         howmanyconfirmations = current_block - new_transaction_blockheight
@@ -247,8 +248,8 @@ def createnewtransaction(user_id,
     :return:
     """
     print("Found new transaction:", str(hashid))
-    getuserswallet = MoneroWallet.query.\
-        filter(MoneroWallet.user_id == user_id)\
+    getuserswallet = db.session.query(MoneroWallet)\
+        .filter(MoneroWallet.user_id == user_id)\
         .first()
 
     # add to transactions
@@ -308,7 +309,7 @@ def find_new_deposits(blockbacklog):
     :return:
     """
 
-    current_blockheight_query = MoneroBlockHeight.query.get(1)
+    current_blockheight_query = db.session.query(MoneroBlockHeight).get(1)
     current_block = current_blockheight_query.blockheight
 
     blocksfromcurrent = current_block - blockbacklog
@@ -327,7 +328,7 @@ def find_new_deposits(blockbacklog):
             amount = Decimal(get_money(str(incpayments['amount'])))
 
             # get user with that payment id
-            getuserswallet = MoneroWallet.query.\
+            getuserswallet = db.session.query(MoneroWallet).\
                 filter(MoneroWallet.address1 == incomming_address)\
                 .first()
 
@@ -338,7 +339,7 @@ def find_new_deposits(blockbacklog):
                 user_id = getuserswallet.user_id
                 print("USER:", getuserswallet.user_id)
                 # see if already in db
-                gettransaction = MoneroTransactions.query\
+                gettransaction = db.session.query(MoneroTransactions)\
                     .filter_by(txid=hashid)\
                     .first()
 

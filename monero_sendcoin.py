@@ -22,14 +22,14 @@ headers = {'content-type': 'application/json'}
 
 
 def getwalletofperson(userid):
-    getuserswallet = MoneroWallet.query \
+    getuserswallet = db.session.query(MoneroWallet) \
         .filter(MoneroWallet.user_id == userid) \
         .first()
     return getuserswallet
 
 
 def getblockheight():
-    lastblockheight = MoneroBlockHeight.query.get(1)
+    lastblockheight = db.session.query(MoneroBlockHeight).get(1)
     return lastblockheight
 
 
@@ -151,7 +151,7 @@ def main():
 
     """
 
-    work = MoneroWalletWork.query \
+    work = db.session.query(MoneroWalletWork) \
         .filter(MoneroWalletWork.type == 1) \
         .order_by(MoneroWalletWork.created.desc()) \
         .all()

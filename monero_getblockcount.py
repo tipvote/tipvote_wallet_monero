@@ -42,7 +42,7 @@ def updateblockheight():
 
         lastheight = response_json["result"]['height']
 
-        lastblockheight = MoneroBlockHeight.query.get(1)
+        lastblockheight = db.session.query(MoneroBlockHeight).get(1)
         lastblockheight.blockheight = int(lastheight)
 
         db.session.add(lastblockheight)

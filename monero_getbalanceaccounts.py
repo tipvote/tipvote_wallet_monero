@@ -53,7 +53,7 @@ def getaddresses():
     rpc_input = {
         "method": "get_address",
         "params": {"account_index": int(2),
-                   "address_index": [1,150, 151]
+                   "address_index": [1, 150, 151]
                    }
     }
 

@@ -45,18 +45,18 @@ def create_subaddress(user_id):
 
 def checkforwork():
     # query for work ..#2 = create a wallet
-    work = MoneroWalletWork.query \
+    work = db.session.query(MoneroWalletWork) \
         .filter(MoneroWalletWork.type == 2) \
         .all()
     if work:
         for f in work:
             # get user wallet
-            user_wallet = MoneroWallet.query. \
-                filter(MoneroWallet.user_id == f.user_id) \
+            user_wallet = db.session.query(MoneroWallet) \
+                .filter(MoneroWallet.user_id == f.user_id) \
                 .first()
 
             # get the user
-            theuser = User.query.get(f.user_id)
+            theuser = db.session.query(User).get(f.user_id)
             # create an account
             userinfo = create_subaddress(user_id=f.id)
             # get new address
@@ -81,4 +81,3 @@ def checkforwork():
 
 if __name__ == '__main__':
     checkforwork()
-

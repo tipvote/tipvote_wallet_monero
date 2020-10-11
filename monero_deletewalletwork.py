@@ -5,7 +5,7 @@ from app.models import MoneroWalletWork
 # run once every ten minutes
 def deleteoldorder():
 
-    getwork = MoneroWalletWork.query\
+    getwork = db.session.query(MoneroWalletWork)\
         .filter_by(type=0)\
         .all()
     for f in getwork:

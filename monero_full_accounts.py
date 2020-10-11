@@ -97,7 +97,7 @@ def balance_validate_address(theaddress):
 
 def checkforwork():
     # get all users
-    the_users = User.query.order_by(User.id.asc()).all()
+    the_users = db.session.query(User).order_by(User.id.asc()).all()
     # loop through them
     print("Starting program ..")
     for f in the_users:
@@ -105,7 +105,7 @@ def checkforwork():
         print("***********Start*********")
 
         # Get users wallet in database
-        user_wallet = MoneroWallet.query \
+        user_wallet = db.session.query(MoneroWallet) \
             .filter(MoneroWallet.user_id == f.id) \
             .first()
 
@@ -115,7 +115,7 @@ def checkforwork():
             createnewdbentry(userid=f.id)
 
             # re query wallet
-            user_wallet = MoneroWallet.query \
+            user_wallet = db.session.query(MoneroWallet) \
                 .filter(MoneroWallet.user_id == f.id) \
                 .first()
 
