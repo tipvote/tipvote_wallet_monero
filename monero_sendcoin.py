@@ -127,6 +127,7 @@ def add_transaction(f, sendto, amount, user_id):
 
             f.type = 0
             db.session.add(f)
+            db.session.commit()
             print("sent coin work completed")
 
     elif response_json_send["result"]['error']:
